@@ -24,6 +24,13 @@ wss.on('connection', function connection(ws) {
     ws.on('error', (err) => {
       console.error('WebSocket error:', err);
     });
+
+    ws.on('message', (message) => {
+      const data = JSON.parse(message);
+      if (data.type === 'ping') {
+        console.log('Received ping from client');
+      }
+    });
   });
   
 });
