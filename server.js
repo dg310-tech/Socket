@@ -1,35 +1,31 @@
 // server.js
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
+const WebSocket = require('ws');
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
-const PORT = process.env.PORT || 8000;
-app.use(express.static('public'));
+const wss = new WebSocket.Server({ port: 8000 });
 
-io.on('connection', (socket) => {
-  console.log('New client connected');
+wss.on('connection', function connection(ws) {
+  console.log('Client connected');
 
-  const intervalId = setInterval(() => {
-    const dummyData = {
+  const interval = setInterval(() => {
+    const data = {
       timestamp: new Date(),
-      value: Math.floor(Math.random() * 100),
+      value: Math.floor(Math.random() * 100)
     };
-    socket.emit('dummy-data', dummyData);
+    ws.send(JSON.stringify(data));
   }, 3000);
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-    clearInterval(intervalId);
+  wss.on('connection', function connection(ws) {
+    console.log('Client connected');  // ✅ This logs when Flutter connects
+  
+    ws.on('close', () => {
+      console.log('Client disconnected');  // ✅ This logs when Flutter disconnects
+    });
+  
+    ws.on('error', (err) => {
+      console.error('WebSocket error:', err);
+    });
   });
+  
 });
 
-server.listen(PORT, () => {
-  console.log('Server running on http://localhost:8000');
-});
-
-app.get('/', (req, res) => {
-  res.send("Hello World, Welome to Socket.io");
-});
+console.log('WebSocket server is running on ws://localhost:8000');
