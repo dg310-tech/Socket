@@ -7,13 +7,11 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const PORT = process.env.PORT || 8000;
-// Serve static files from 'public' folder
 app.use(express.static('public'));
 
 io.on('connection', (socket) => {
   console.log('New client connected');
 
-  // Send dummy data every 3 seconds
   const intervalId = setInterval(() => {
     const dummyData = {
       timestamp: new Date(),
@@ -30,4 +28,8 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, () => {
   console.log('Server running on http://localhost:8000');
+});
+
+app.get('/', (req, res) => {
+  res.send("Hello World, Welome to Socket.io");
 });
